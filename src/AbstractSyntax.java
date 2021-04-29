@@ -8,13 +8,13 @@ class Program {
     Declarations decpart;
     Block body;
 
-    Program (Declarations d, Block b) {
+    Program(Declarations d, Block b) {
         decpart = d;
         body = b;
     }
 
     public void display() {
-        System.out.println(decpart);
+        System.out.println("Program (abstract syntax:)");
         decpart.display();
         body.display();
     }
@@ -48,13 +48,13 @@ class Declaration {
 }
 
 class Type {
-    // Type = int | bool | char | float 
+    // Type = int | bool | char | float
     final static Type INT = new Type("int");
     final static Type BOOL = new Type("bool");
     final static Type CHAR = new Type("char");
     final static Type FLOAT = new Type("float");
     // final static Type UNDEFINED = new Type("undef");
-    
+
     private String id;
 
     private Type (String t) { id = t; }
@@ -109,11 +109,11 @@ class Conditional extends Statement {
     Expression test;
     Statement thenbranch, elsebranch;
     // elsebranch == null means "if... then"
-    
+
     Conditional (Expression t, Statement tp) {
         test = t; thenbranch = tp; elsebranch = new Skip( );
     }
-    
+
     Conditional (Expression t, Statement tp, Statement ep) {
         test = t; thenbranch = tp; elsebranch = ep;
     }
@@ -150,12 +150,12 @@ class Variable extends Expression {
     Variable (String s) { id = s; }
 
     public String toString( ) { return id; }
-    
+
     public boolean equals (Object obj) {
         String s = ((Variable) obj).id;
         return id.equals(s); // case-sensitive identifiers
     }
-    
+
     public int hashCode ( ) { return id.hashCode( ); }
 
     public void display() {
@@ -169,21 +169,23 @@ abstract class Value extends Expression {
     protected Type type;
     protected boolean undef = true;
 
+    public abstract void PrintValue();
+
     int intValue ( ) {
         assert false : "should never reach here";
         return 0;
     }
-    
+
     boolean boolValue ( ) {
         assert false : "should never reach here";
         return false;
     }
-    
+
     char charValue ( ) {
         assert false : "should never reach here";
         return ' ';
     }
-    
+
     float floatValue ( ) {
         assert false : "should never reach here";
         return 0.0f;
@@ -209,6 +211,11 @@ class IntValue extends Value {
 
     IntValue (int v) { this( ); value = v; undef = false; }
 
+    @Override
+    public void PrintValue() {
+        System.out.println(intValue());
+    }
+
     int intValue ( ) {
         assert !undef : "reference to undefined int value";
         return value;
@@ -226,6 +233,11 @@ class IntValue extends Value {
 
 class BoolValue extends Value {
     private boolean value = false;
+
+    @Override
+    public void PrintValue() {
+        System.out.println(boolValue());
+    }
 
     BoolValue ( ) { type = Type.BOOL; }
 
@@ -254,6 +266,10 @@ class BoolValue extends Value {
 class CharValue extends Value {
     private char value = ' ';
 
+    @Override
+    public void PrintValue() {
+        System.out.println(charValue());
+    }
     CharValue ( ) { type = Type.CHAR; }
 
     CharValue (char v) { this( ); value = v; undef = false; }
@@ -275,6 +291,11 @@ class CharValue extends Value {
 
 class FloatValue extends Value {
     private float value = 0;
+
+    @Override
+    public void PrintValue() {
+        System.out.println(floatValue());
+    }
 
     FloatValue ( ) { type = Type.FLOAT; }
 
@@ -343,7 +364,7 @@ class Operator {
     final static String MINUS = "-";
     final static String TIMES = "*";
     final static String DIV = "/";
-    // UnaryOp = !    
+    // UnaryOp = !
     final static String NOT = "!";
     final static String NEG = "-";
     // CastOp = int | float | char
@@ -363,7 +384,7 @@ class Operator {
     final static String INT_MINUS = "INT-";
     final static String INT_TIMES = "INT*";
     final static String INT_DIV = "INT/";
-    // UnaryOp = !    
+    // UnaryOp = !
     final static String INT_NEG = "-";
     // RelationalOp = < | <= | == | != | >= | >
     final static String FLOAT_LT = "FLOAT<";
@@ -377,7 +398,7 @@ class Operator {
     final static String FLOAT_MINUS = "FLOAT-";
     final static String FLOAT_TIMES = "FLOAT*";
     final static String FLOAT_DIV = "FLOAT/";
-    // UnaryOp = !    
+    // UnaryOp = !
     final static String FLOAT_NEG = "-";
     // RelationalOp = < | <= | == | != | >= | >
     final static String CHAR_LT = "CHAR<";
@@ -398,14 +419,14 @@ class Operator {
     final static String F2I = "F2I";
     final static String C2I = "C2I";
     final static String I2C = "I2C";
-    
+
     String val;
-    
+
     Operator (String s) { val = s; }
 
     public String toString( ) { return val; }
     public boolean equals(Object obj) { return val.equals(obj); }
-    
+
     boolean BooleanOp ( ) { return val.equals(AND) || val.equals(OR); }
     boolean RelationalOp ( ) {
         return val.equals(LT) || val.equals(LE) || val.equals(EQ)
@@ -420,6 +441,10 @@ class Operator {
     boolean intOp ( ) { return val.equals(INT); }
     boolean floatOp ( ) { return val.equals(FLOAT); }
     boolean charOp ( ) { return val.equals(CHAR); }
+    //Custom Function
+    boolean FloatCast ( ) { return val.equals(F2I); }
+    boolean IntCast ( ) { return val.equals(I2F) || val.equals(I2C); }
+    boolean CharCast ( ) { return val.equals(C2I); }
 
     final static String intMap[ ] [ ] = {
         {PLUS, INT_PLUS}, {MINUS, INT_MINUS},
@@ -446,6 +471,8 @@ class Operator {
     final static String boolMap[ ] [ ] = {
         {EQ, BOOL_EQ}, {NE, BOOL_NE}, {LT, BOOL_LT},
         {LE, BOOL_LE}, {GT, BOOL_GT}, {GE, BOOL_GE},
+        //opAdd
+        {AND, AND}, {OR, OR}, {NOT, NOT}
     };
 
     final static private Operator map (String[][] tmap, String op) {
