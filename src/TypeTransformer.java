@@ -131,6 +131,50 @@ public class TypeTransformer {
         throw new IllegalArgumentException("should never reach here");
     }
 
+    public static void Put(Expression e, TypeMap tm){
+        System.out.println("\nexpression is\n");
+        StaticTypeCheck.V(e,tm);
+        //e.display();
+        System.out.println("Put result");
+        //case 1 값일 경우
+        if (e instanceof Value){
+            Value v = (Value) e;
+            v.PrintValue();
+            return;
+        }
+        //case 2 변수일 경우 타입이 맵에 있는지 확인
+        if (e instanceof Variable) {
+            Variable v = (Variable) e;
+            // 타입이 타당한지 확인
+            StaticTypeCheck.check(tm.containsKey(v), "undefined variable: " + v);
+            System.out.println(v.toString());
+            return;
+        }
+        //case 3 이항식(Binary)일 경우
+        if (e instanceof Binary) {
+            Binary b = (Binary) e;
+            StaticTypeCheck.V(b,tm);
+            System.out.println(b.term1.toString() +" "+ b.op.val +" " + b.term2.toString() );
+            }
+        // Unary인 경우
+        if(e instanceof Unary){
+            Unary u = (Unary) e;
+            System.out.println(u.op.val +" " + u.term.toString() );
+            return;
+        }
+    }
+
+    public static int GetInt(){
+        Scanner scanner = new Scanner(System.in);
+        int temp = scanner.nextInt();
+        return temp;
+    }
+
+    public static float GetFloat(){
+        Scanner scanner = new Scanner(System.in);
+        float temp = scanner.nextFloat();
+        return temp;
+    }
 
     public static void main(String args[]) {
 
